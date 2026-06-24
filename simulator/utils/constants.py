@@ -1,0 +1,15 @@
+
+# CONSTANTS
+
+G = 6.67430e-11
+
+
+# EARTH
+
+EARTH_MASS = 5.972e24
+EARTH_RADIUS = 6_378_137.0
+
+
+# RENDERING
+
+SCALE = 10e-6 # 100 km <-> 1 pixel
