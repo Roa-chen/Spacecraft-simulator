@@ -2,18 +2,17 @@
 
 from simulator.environment.environment import Environment
 from simulator.dynamics.dynamics import Dynamics
+from simulator.dynamics.integrators.integrator import Integrator
 from simulator.core.clock import Clock
 
 
 class Simulation:
-    def __init__(self, environment: Environment, dynamics: Dynamics, dt: float):
+    def __init__(self, environment: Environment, integrator: Integrator, dt: float):
         self.env = environment
-        self.dynamics = dynamics
+        self.integrator = integrator
         self.dt = dt
-
-        self.clock = Clock()
 
     def step(self):
 
-        self.dynamics.step(self.env, self.dt)
-        self.clock.step(self.dt)
+        self.integrator.step(self.env, self.dt)
+        self.env.step_time(self.dt)

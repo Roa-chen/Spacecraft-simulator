@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 from direct.gui.DirectGui import DirectButton
 from direct.gui.DirectGui import DirectFrame
@@ -132,7 +133,7 @@ class Renderer(ShowBase):
             parent=self.aspect2d,
             frameColor=(0.08, 0.09, 0.12, 0.92),
             frameSize=(-0.02, 0.38, -1.0, 1.0),
-            pos=(-1.28, 0.0, 0.0),
+            pos=(-1.48, 0.0, 0.0),
         )
 
         OnscreenText(
@@ -241,7 +242,9 @@ class Renderer(ShowBase):
         pass
 
     def _on_reset_view(self):
-        pass
+        self.camera_controller.position = np.array([0, 0, 500], dtype=float)
+        self.camera_controller.yaw = 0.
+        self.camera_controller.pitch = -89.
 
     def _on_reset_simulation(self):
         pass
@@ -275,7 +278,7 @@ class Renderer(ShowBase):
         if self._status_text is None:
             return
 
-        simulation_time = self.simulation.clock.time if self.simulation is not None else 0.0
+        simulation_time = self.simulation.env.get_time() if self.simulation is not None else 0.0
         average_frame_rate = globalClock.getAverageFrameRate()
         camera_position = self.camera_controller.position
 

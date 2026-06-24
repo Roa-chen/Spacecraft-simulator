@@ -42,16 +42,19 @@ def build_demo_environment():
         ),
     )
 
-    env.objects.extend([earth, satellite])
+    env.add_objects([earth, satellite])
     return env
 
 
 if __name__ == "__main__":
 
     env = build_demo_environment()
-    integrator = Euler()
-    dynamics = Dynamics(integrator)
-    simulation = Simulation(env, dynamics, 1.0)
+    
+    dynamics = Dynamics()
+    integrator = Euler(dynamics)
+    simulation = Simulation(env, integrator, 1.0)
+
+
     renderer = Renderer(env, simulation)
 
     def simulation_task(task):

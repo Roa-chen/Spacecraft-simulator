@@ -8,5 +8,5 @@ class ForceModel:
     def __init__(self):
         pass
 
-    def compute_force(self, obj: Object, env: Environment) -> np.ndarray:
-        pass
+    def compute_force(self, t: float, positions: np.ndarray, velocities: np.ndarray, props: dict[str, np.ndarray]) -> np.ndarray:
+        raise NotImplementedError()

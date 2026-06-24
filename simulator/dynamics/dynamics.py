@@ -1,30 +1,25 @@
 
-from simulator.dynamics.integrators.integrator import Integrator
-from simulator.environment.environment import Environment
+import numpy as np
+
 from simulator.dynamics.forces.gravity import Gravity
 
 class Dynamics:
-    def __init__(self, integrator: Integrator):
-        self.integrator = integrator
+    def __init__(self):
         self.forces = [
             Gravity(),
         ]
 
-    def step(self, env: Environment, dt: float):
+    def differentiate(self, t: float, positions: np.ndarray, velocities: np.ndarray, props: dict[str, np.ndarray]) -> tuple[np.ndarray, np.ndarray]:
 
-        resultants = []
-
-
-        # Compute forces
-
-        for obj in env.objects:
-            resultants.append(
-                sum([
-                    model.compute_force(obj, env) for model in self.forces
-                ])
-            )
-
-        # Apply changes
-
-        for obj, resultant in zip(env.objects, resultants):
-            self.integrator.step(obj, resultant, dt)
+        N = positions.shape[0]
+        
+        masses = np.broadcast_to((props["masses"]).reshape(-1, 1), (N, 3))
+        
+        resultants = sum([
+            model.compute_force(t, positions, velocities, props) for model in self.forces
+        ])
+        
+        accelerations = resultants/masses
+        
+        return (velocities, accelerations)
+        
