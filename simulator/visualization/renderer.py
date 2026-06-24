@@ -1,6 +1,8 @@
 import math
 import numpy as np
 
+import sys
+
 from direct.gui.DirectGui import DirectButton
 from direct.gui.DirectGui import DirectFrame
 from direct.gui.DirectGui import OnscreenText
@@ -107,6 +109,7 @@ class Renderer(ShowBase):
             self.accept(event_name, self._set_key, [key_name, pressed])
 
         self.accept("f1", self.toggle_mouse_camera_mode)
+        self.accept("f2", self.exit_window)
 
     def _warp_mouse_to_center(self):
         if self.win is None or self._mouse_center is None:
@@ -127,6 +130,9 @@ class Renderer(ShowBase):
             properties.setMouseMode(WindowProperties.M_absolute)
 
         self.win.requestProperties(properties)
+    
+    def exit_window(self):
+        sys.exit(0)
 
     def _create_ui(self):
         self._control_panel = DirectFrame(
