@@ -52,7 +52,7 @@ if __name__ == "__main__":
     integrator = Euler()
     dynamics = Dynamics(integrator)
     simulation = Simulation(env, dynamics, 1.0)
-    renderer = Renderer(env)
+    renderer = Renderer(env, simulation)
 
     def simulation_task(task):
         simulation.step()
