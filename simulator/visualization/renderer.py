@@ -6,6 +6,7 @@ import sys
 from direct.gui.DirectGui import DirectButton
 from direct.gui.DirectGui import DirectFrame
 from direct.gui.DirectGui import OnscreenText
+from direct.showbase.InputStateGlobal import inputState
 from direct.showbase.ShowBase import ShowBase
 from direct.showbase.ShowBaseGlobal import globalClock
 from panda3d.core import AmbientLight
@@ -33,14 +34,6 @@ class Renderer(ShowBase):
         self.env = environment
         self.simulation = simulation
         self.camera_controller = Camera()
-        self.key_state = {
-            "forward": False,
-            "backward": False,
-            "left": False,
-            "right": False,
-            "up": False,
-            "down": False,
-        }
         self._mouse_center = None
         self._sphere_template = self._create_sphere_template()
         self._control_panel = None
@@ -90,23 +83,12 @@ class Renderer(ShowBase):
         self.setBackgroundColor(0.02, 0.03, 0.07)
 
     def _bind_controls(self):
-        bindings = {
-            "z": ("forward", True),
-            "z-up": ("forward", False),
-            "s": ("backward", True),
-            "s-up": ("backward", False),
-            "q": ("left", True),
-            "q-up": ("left", False),
-            "d": ("right", True),
-            "d-up": ("right", False),
-            "space": ("up", True),
-            "space-up": ("up", False),
-            "shift": ("down", True),
-            "shift-up": ("down", False),
-        }
-
-        for event_name, (key_name, pressed) in bindings.items():
-            self.accept(event_name, self._set_key, [key_name, pressed])
+        inputState.watchWithModifiers("forward", "z")
+        inputState.watchWithModifiers("backward", "s")
+        inputState.watchWithModifiers("left", "q")
+        inputState.watchWithModifiers("right", "d")
+        inputState.watchWithModifiers("up", "space")
+        inputState.watchWithModifiers("down", "shift")
 
         self.accept("f1", self.toggle_mouse_camera_mode)
         self.accept("f2", self.exit_window)
@@ -258,9 +240,6 @@ class Renderer(ShowBase):
     def _on_follow_target(self):
         pass
 
-    def _set_key(self, key_name: str, pressed: bool):
-        self.key_state[key_name] = pressed
-
     def _get_mouse_delta(self):
         if self.win is None or not self.mouse_camera_mode:
             return None
@@ -303,12 +282,25 @@ class Renderer(ShowBase):
 
         dt = globalClock.getDt()
         mouse_delta = self._get_mouse_delta()
-        self.camera_controller.update(dt, self.key_state, mouse_delta)
+        self._update_camera_movement(dt, mouse_delta)
         self.camera_controller.apply_to(self.camera)
         self.update()
         self._update_status_text()
 
         return task.cont
+
+    def _update_camera_movement(self, dt: float, mouse_delta):
+        self.camera_controller.update(dt, self._movement_state(), mouse_delta)
+
+    def _movement_state(self):
+        return {
+            "forward": inputState.isSet("forward"),
+            "backward": inputState.isSet("backward"),
+            "left": inputState.isSet("left"),
+            "right": inputState.isSet("right"),
+            "up": inputState.isSet("up"),
+            "down": inputState.isSet("down"),
+        }
 
     def update(self):
         for body in self.env.objects:
