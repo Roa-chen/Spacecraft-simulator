@@ -5,6 +5,7 @@ from simulator.environment.object import Object
 from simulator.core.state import State
 from simulator.dynamics.dynamics import Dynamics
 from simulator.dynamics.integrators.euler import Euler
+from simulator.dynamics.integrators.rk4 import RK4
 from simulator.utils.constants import EARTH_MASS, EARTH_RADIUS, G
 from simulator.visualization.renderer import Renderer
 
@@ -51,7 +52,7 @@ if __name__ == "__main__":
     env = build_demo_environment()
     
     dynamics = Dynamics()
-    integrator = Euler(dynamics)
+    integrator = RK4(dynamics)
     simulation = Simulation(env, integrator, 1.0)
 
 
