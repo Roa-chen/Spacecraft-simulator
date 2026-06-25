@@ -315,5 +315,6 @@ class Renderer(ShowBase):
                     body.node.setColor(1.0, 0.95, 0.75, 1.0)
 
             body_scale = max(body.radius * SCALE, 1)
+            # body_scale = body.radius * SCALE
             body.node.setScale(body_scale)
             body.node.setPos(*pos)

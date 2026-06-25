@@ -19,8 +19,7 @@ class RK4(Integrator):
         velocities = np.zeros((N, 3))
         masses = np.zeros(N)
         
-        for i in range(N):
-            obj = objects[i]
+        for i, obj in enumerate(env.objects):
             state = obj.state
             
             positions[i] = state.position
