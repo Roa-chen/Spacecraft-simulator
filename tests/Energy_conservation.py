@@ -11,7 +11,8 @@ from simulator.visualization.renderer import Renderer
 
 if __name__ == "__main__":
     
-    env = Earth_Spacecraft_elliptical()
+    env = Earth_Spacecraft_circular()
+    # env = Earth_Spacecraft_elliptical()
     
     dt = 6
     T = 60 * 60 * 24

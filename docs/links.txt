@@ -1,2 +1,8 @@
 - different types of orbits
 https://www.esa.int/Enabling_Support/Space_Transportation/Types_of_orbits
+
+- professional simulator
+https://avslab.github.io/basilisk/
+
+- Course on attitude
+https://youtu.be/xEFgaw1zPXA?si=5oMr1Gbc9i24R0I9
