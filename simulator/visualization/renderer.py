@@ -348,30 +348,34 @@ class Renderer(ShowBase):
         node = GeomNode("sphere-template")
         node.addGeom(geom)
         return NodePath(node)
-
-    def _create_brick_template(self, width: float = 1.0, depth: float = 2.0, height: float = 0.5) -> NodePath:
+    
+    def _create_brick_template(self, length: float = 2.0, width: float = 1.0, height: float = 0.5) -> NodePath:
         format_ = GeomVertexFormat.getV3n3()
         vertex_data = GeomVertexData("brick", format_, Geom.UHStatic)
         vertex_writer = GeomVertexWriter(vertex_data, "vertex")
         normal_writer = GeomVertexWriter(vertex_data, "normal")
 
-        # Half dimensions to center the brick perfectly around its origin
-        hx, hy, hz = width / 2.0, depth / 2.0, height / 2.0
+        # Half dimensions
+        hx, hy, hz = length / 2.0, width / 2.0, height / 2.0
 
-        # Define the 6 faces: (Normal Vector, [Bottom-Left, Bottom-Right, Top-Right, Top-Left])
-        # Vertices must be defined counter-clockwise so the engine knows which way is "outside"
+        # Define faces: Normal Vector, and 4 vertices in CCW order from the outside
         faces = [
-            # Front face
-            (Vec3(0, -1, 0), [Vec3(-hx, -hy, -hz), Vec3(hx, -hy, -hz), Vec3(hx, -hy, hz), Vec3(-hx, -hy, hz)]),
-            # Back face
-            (Vec3(0, 1, 0), [Vec3(hx, hy, -hz), Vec3(-hx, hy, -hz), Vec3(-hx, hy, hz), Vec3(hx, hy, hz)]),
-            # Left face
-            (Vec3(-1, 0, 0), [Vec3(-hx, hy, -hz), Vec3(-hx, -hy, -hz), Vec3(-hx, -hy, hz), Vec3(-hx, hy, hz)]),
-            # Right face
+            # Nose (+X): Looking from +X. Local Y is left/right, Local Z is up/down.
             (Vec3(1, 0, 0), [Vec3(hx, -hy, -hz), Vec3(hx, hy, -hz), Vec3(hx, hy, hz), Vec3(hx, -hy, hz)]),
-            # Top face
+            
+            # Tail (-X): Looking from -X. Local Y is right/left, Local Z is up/down.
+            (Vec3(-1, 0, 0), [Vec3(-hx, hy, -hz), Vec3(-hx, -hy, -hz), Vec3(-hx, -hy, hz), Vec3(-hx, hy, hz)]),
+            
+            # Right side (+Y): Looking from +Y. Local X is left/right, Local Z is up/down.
+            (Vec3(0, 1, 0), [Vec3(-hx, hy, -hz), Vec3(-hx, hy, hz), Vec3(hx, hy, hz), Vec3(hx, hy, -hz)]),
+            
+            # Left side (-Y): Looking from -Y. Local X is right/left, Local Z is up/down.
+            (Vec3(0, -1, 0), [Vec3(-hx, -hy, -hz), Vec3(hx, -hy, -hz), Vec3(hx, -hy, hz), Vec3(-hx, -hy, hz)]),
+            
+            # Bottom (+Z): Looking from +Z. Local X is left/right, Local Y is up/down.
             (Vec3(0, 0, 1), [Vec3(-hx, -hy, hz), Vec3(hx, -hy, hz), Vec3(hx, hy, hz), Vec3(-hx, hy, hz)]),
-            # Bottom face
+            
+            # Top (-Z): Looking from -Z. Local X is right/left, Local Y is up/down.
             (Vec3(0, 0, -1), [Vec3(-hx, hy, -hz), Vec3(hx, hy, -hz), Vec3(hx, -hy, -hz), Vec3(-hx, -hy, -hz)])
         ]
 
@@ -383,7 +387,7 @@ class Renderer(ShowBase):
                 vertex_writer.addData3f(v)
                 normal_writer.addData3f(normal)
             
-            # Draw the two triangles that make up the rectangular face
+            # Add the two triangles per face using the CCW order
             triangles.addVertices(vertex_index, vertex_index + 1, vertex_index + 2)
             triangles.closePrimitive()
             triangles.addVertices(vertex_index, vertex_index + 2, vertex_index + 3)
@@ -455,4 +459,3 @@ class Renderer(ShowBase):
             body.node.setScale(body_scale)
             body.node.setPos(*pos)
             body.node.setQuat(Quat(*tuple(body.get_attitude())))
-            # body.node.setHpr(*body.rotation)

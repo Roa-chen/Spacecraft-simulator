@@ -15,3 +15,7 @@ https://youtu.be/98Mfe-Vfgo0?si=SAZocjLJvrUDaubN
 
 - Website on spacecraft attitude
 https://mecaspa.cannes-aero-patrimoine.net/SCAO/ATTITUDE/SCAO_0.htm
+
+- Page on python einstein sums
+https://labex.io/fr/tutorials/numpy-numpy-einsum-for-scientific-computing-4991
+
