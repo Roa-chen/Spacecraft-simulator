@@ -61,10 +61,7 @@ class Dynamics:
         
         torque = sum([screw[1] for screw in screws])
         
-        d_angular_velocity = (torque - cross)
-        
-        # TODO add I_inv
-        
+        d_angular_velocity = np.einsum('nij,nj->ni', I_inv, torque - cross)
         
         return (velocities, accelerations, d_attitude, d_angular_velocity)
         

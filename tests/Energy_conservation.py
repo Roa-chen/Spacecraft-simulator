@@ -41,7 +41,7 @@ if __name__ == "__main__":
         m.append(m_en)
         momentum.append(env.get_environment_momentum())
         
-        dist = np.linalg.norm(spacecraft.state.position - earth.state.position)
+        dist = np.linalg.norm(spacecraft.get_position() - earth.get_position())
         d.append(dist)
 
         simulation.step()

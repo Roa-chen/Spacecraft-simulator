@@ -1,7 +1,6 @@
 
 import numpy as np
 
-from simulator.core.state import State
 from simulator.environment.object import Object
 from simulator.environment.environment import Environment
 from simulator.dynamics.dynamics import Dynamics

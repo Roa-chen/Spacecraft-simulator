@@ -32,8 +32,8 @@ if __name__ == "__main__":
     while env.get_time() < T:
         
         t.append(env.get_time())
-        attitude.append(env.objects[1].state.attitude)
-        angular_velocity.append(env.objects[1].state.angular_velocity)
+        attitude.append(env.objects[1].get_attitude())
+        angular_velocity.append(env.objects[1].get_angular_velocity())
         simulation.step()
         
     plt.plot(t, attitude)

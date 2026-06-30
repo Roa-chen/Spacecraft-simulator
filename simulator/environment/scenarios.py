@@ -14,7 +14,7 @@ def Earth_Spacecraft_circular(orbital_altitude: float = 400_000.0):
         name="Earth",
         mass=EARTH_MASS,
         radius=EARTH_RADIUS,
-        state=State(
+        initial_state=State(
             position=np.array([0.0, 0.0, 0.0], dtype=float),
             velocity=np.array([0.0, 0.0, 0.0], dtype=float),
             attitude=np.array([1.0, 0.0, 0.0, 0.0], dtype=float),
@@ -28,7 +28,7 @@ def Earth_Spacecraft_circular(orbital_altitude: float = 400_000.0):
     satellite = Spacecraft(
         name="Satellite",
         mass=1_000.0,
-        state=State(
+        initial_state=State(
             position=satellite_position,
             velocity=np.array([0.0, orbital_speed, 0.0], dtype=float),
             attitude=np.array([1.0, 0.0, 0.0, 0.0], dtype=float),
@@ -46,7 +46,7 @@ def Earth_Spacecraft_elliptical(min_orbital_radius: float = 8e6, max_orbital_rad
         name="Earth",
         mass=EARTH_MASS,
         radius=EARTH_RADIUS,
-        state=State(
+        initial_state=State(
             position=np.array([0.0, 0.0, 0.0], dtype=float),
             velocity=np.array([0.0, 0.0, 0.0], dtype=float),
             attitude=np.array([1.0, 0.0, 0.0, 0.0], dtype=float),
@@ -57,11 +57,10 @@ def Earth_Spacecraft_elliptical(min_orbital_radius: float = 8e6, max_orbital_rad
     satellite_position = np.array([max_orbital_radius, 0.0, 0.0], dtype=float)
     orbital_speed = np.sqrt(2* G * EARTH_MASS * min_orbital_radius / (max_orbital_radius * (max_orbital_radius + min_orbital_radius)))
 
-    satellite = Object(
+    satellite = Spacecraft(
         name="Satellite",
         mass=1_000.0,
-        radius=12_000.0,
-        state=State(
+        initial_state=State(
             position=satellite_position,
             velocity=np.array([0.0, orbital_speed, 0.0], dtype=float),
             attitude=np.array([1.0, 0.0, 0.0, 0.0], dtype=float),

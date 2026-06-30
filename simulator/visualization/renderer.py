@@ -305,7 +305,7 @@ class Renderer(ShowBase):
 
     def update(self):
         for body in self.env.objects:
-            pos = body.state.position * SCALE
+            pos = body.get_position() * SCALE
 
             if not hasattr(body, "node"):
                 body.node = self._sphere_template.copyTo(self.render)
@@ -317,6 +317,6 @@ class Renderer(ShowBase):
 
             size = 1000 if isinstance(body, Spacecraft) else body.radius
             
-            body_scale = max(body.radius * SCALE, 1)
+            body_scale = max(size * SCALE, 1)
             body.node.setScale(body_scale)
             body.node.setPos(*pos)
