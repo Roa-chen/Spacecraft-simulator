@@ -23,6 +23,7 @@ from panda3d.core import Vec4
 from panda3d.core import WindowProperties
 
 from simulator.utils.constants import SCALE
+from simulator.environment.spacecraft import Spacecraft
 from simulator.visualization.camera import Camera
 
 
@@ -314,7 +315,8 @@ class Renderer(ShowBase):
                 else:
                     body.node.setColor(1.0, 0.95, 0.75, 1.0)
 
+            size = 1000 if isinstance(body, Spacecraft) else body.radius
+            
             body_scale = max(body.radius * SCALE, 1)
-            # body_scale = body.radius * SCALE
             body.node.setScale(body_scale)
             body.node.setPos(*pos)

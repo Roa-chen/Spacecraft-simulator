@@ -4,6 +4,7 @@ import numpy as np
 from simulator.utils.constants import *
 from simulator.environment.environment import Environment
 from simulator.environment.object import Object
+from simulator.environment.spacecraft import Spacecraft
 from simulator.core.state import State
 
 def Earth_Spacecraft_circular(orbital_altitude: float = 400_000.0):
@@ -24,15 +25,14 @@ def Earth_Spacecraft_circular(orbital_altitude: float = 400_000.0):
     satellite_position = np.array([EARTH_RADIUS + orbital_altitude, 0.0, 0.0], dtype=float)
     orbital_speed = np.sqrt(G * EARTH_MASS / np.linalg.norm(satellite_position))
 
-    satellite = Object(
+    satellite = Spacecraft(
         name="Satellite",
         mass=1_000.0,
-        radius=12_000.0,
         state=State(
             position=satellite_position,
             velocity=np.array([0.0, orbital_speed, 0.0], dtype=float),
             attitude=np.array([1.0, 0.0, 0.0, 0.0], dtype=float),
-            angular_velocity=np.array([0.0, 0.0, 0.0], dtype=float),
+            angular_velocity=np.array([1.0, 0.0, 0.0], dtype=float),
         ),
     )
 

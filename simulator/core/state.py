@@ -7,4 +7,4 @@ class State:
         self.velocity = np.array(velocity, dtype=float)
 
         self.attitude = np.array(attitude, dtype=float) # quaternion
-        self.angular_velocity = np.array(angular_velocity, dtype=float)
+        self.angular_velocity = np.array(angular_velocity, dtype=float) # Expressed in Body Frame

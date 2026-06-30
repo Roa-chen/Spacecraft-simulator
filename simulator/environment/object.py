@@ -1,3 +1,5 @@
+import numpy as np
+
 from simulator.core.state import State
 
 class Object:
@@ -7,3 +9,8 @@ class Object:
         self.mass = mass
         self.radius = radius
         self.state = state
+        self.inertia_matrix = self.mass * np.array([
+            [1, 0, 0],
+            [0, 2, 0],
+            [0, 0, 3],
+        ])

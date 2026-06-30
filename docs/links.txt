@@ -6,3 +6,12 @@ https://avslab.github.io/basilisk/
 
 - Course on attitude
 https://youtu.be/xEFgaw1zPXA?si=5oMr1Gbc9i24R0I9
+
+- rk4 method
+https://femto-physique.fr/analyse-numerique/runge-kutta.php
+
+- Course on the use of quaternions for attitude
+https://youtu.be/98Mfe-Vfgo0?si=SAZocjLJvrUDaubN
+
+- Website on spacecraft attitude
+https://mecaspa.cannes-aero-patrimoine.net/SCAO/ATTITUDE/SCAO_0.htm
