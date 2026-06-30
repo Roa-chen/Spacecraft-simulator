@@ -4,8 +4,8 @@ import numpy as np
 
 
 class Camera:
-    def __init__(self, position=None, yaw: float = 0.0, pitch: float = -30.0, move_speed: float = 500.0, mouse_sensitivity: float = 0.2):
-        self.position = np.array(position if position is not None else [0.0, -1000.0, 500.0], dtype=float)
+    def __init__(self, position=None, yaw: float = 0.0, pitch: float = -30.0, move_speed: float = 200.0, mouse_sensitivity: float = 0.2):
+        self.position = np.array(position if position is not None else [0.0, -200.0, 200.0], dtype=float)
         self.yaw = yaw
         self.pitch = pitch
         self.move_speed = move_speed

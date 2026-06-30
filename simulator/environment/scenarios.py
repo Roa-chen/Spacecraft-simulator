@@ -32,7 +32,7 @@ def Earth_Spacecraft_circular(orbital_altitude: float = 400_000.0):
             position=satellite_position,
             velocity=np.array([0.0, orbital_speed, 0.0], dtype=float),
             attitude=np.array([1.0, 0.0, 0.0, 0.0], dtype=float),
-            angular_velocity=np.array([1.0, 0.0, 0.0], dtype=float),
+            angular_velocity=np.array([5e-3, 0.0, 0.0], dtype=float),
         ),
     )
 

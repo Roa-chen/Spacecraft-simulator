@@ -12,21 +12,16 @@ import numpy as np
 
 if __name__ == "__main__":
 
-    # env = Earth_Spacecraft_circular()
-    env = Earth_Spacecraft_elliptical()
+    env = Earth_Spacecraft_circular()
+    # env = Earth_Spacecraft_elliptical()
     
     dynamics = Dynamics()
     integrator = RK4(dynamics)
-    simulation = Simulation(env, integrator, 60.0)
+    simulation = Simulation(env, integrator, 6.0)
 
 
     renderer = Renderer(env, simulation)
 
-    def simulation_task(task):
-        simulation.step()
-        return task.cont
-
-    renderer.taskMgr.add(simulation_task, "simulation-task")
     renderer.run()
 
 
