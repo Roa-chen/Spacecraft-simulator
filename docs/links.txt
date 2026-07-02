@@ -19,3 +19,5 @@ https://mecaspa.cannes-aero-patrimoine.net/SCAO/ATTITUDE/SCAO_0.htm
 - Page on python einstein sums
 https://labex.io/fr/tutorials/numpy-numpy-einsum-for-scientific-computing-4991
 
+- Spot 5 mission
+https://www.eoportal.org/satellite-missions/spot-5#spacecraft

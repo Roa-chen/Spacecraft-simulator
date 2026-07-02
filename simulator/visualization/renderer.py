@@ -164,8 +164,8 @@ class Renderer(ShowBase):
         self._add_ui_button("Reset simulation", self._on_reset_simulation)
         self._add_ui_button("Make step", self._on_make_step)
         
-        self._add_ui_entry("Time Scale:", "1000", self._on_time_scale_change)
-        self._add_ui_entry("Move speed:", "200", self._on_move_speed_change)
+        self._add_ui_entry("Time Scale:", str(self.sim_time_per_sec), self._on_time_scale_change)
+        self._add_ui_entry("Move speed:", str(self.camera_controller.move_speed), self._on_move_speed_change)
 
         # Add visual spacing before status text
         self._ui_current_z -= 0.05
@@ -291,7 +291,7 @@ class Renderer(ShowBase):
 
         return delta_x, delta_y
 
-    def _update_status_text(self):
+    def _update_ui(self):
         if self._status_text is None:
             return
 
@@ -411,7 +411,7 @@ class Renderer(ShowBase):
         self._update_camera_movement(dt, mouse_delta)
         self.camera_controller.apply_to(self.camera)
         self.update()
-        self._update_status_text()
+        self._update_ui()
 
         return task.cont
     
