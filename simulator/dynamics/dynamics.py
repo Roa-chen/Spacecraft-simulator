@@ -16,21 +16,31 @@ class Dynamics:
     INERTIA_INV -> 
     """    
 
-    def differentiate(self, t: float, positions: np.ndarray, velocities: np.ndarray, attitude: np.ndarray, angular_velocity: np.ndarray, props: dict[str, np.ndarray]) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    def differentiate(self, t: float, state: np.ndarray, state_indices: dict[str, tuple[int, int]], state_props: dict[str, np.ndarray]) -> np.ndarray:
 
-        N = positions.shape[0]
+        N = state_props["MASS"].shape[0]
+        Y = state.shape[0]
         
-        screws = [model.compute_action(t, positions, velocities, attitude, angular_velocity, props) for model in self.forces]
+        d_state = np.zeros(Y)
         
-        # Compute acceleration
+        screws = [model.compute_action(t, state, state_indices, state_props) for model in self.forces]
         
-        masses = np.broadcast_to((props["MASS"]).reshape(-1, 1), (N, 3))
+        # Handle POSITION
         
+        d_state[state_indices["POSITION"]] = state[state_indices["VELOCITY"]]
+        
+        # Handle VELOCITY
+        
+        masses = np.broadcast_to((state_props["MASS"]).reshape(-1, 1), (N, 3))
         resultants = sum([screw[0] for screw in screws])
-        
         accelerations = resultants/masses
         
-        # Compute d_attitude
+        d_state[state_indices["VELOCITY"]] = accelerations.flatten()
+        
+        # Handle ATTITUDE
+        
+        attitude = state[state_indices["ATTITUDE"]].reshape(N, 4)
+        angular_velocity = state[state_indices["ANGULAR_VELOCITY"]].reshape(N, 3)
         
         Omega = np.zeros((N, 4, 4))
         Omega[:, 1, 0] = angular_velocity[:, 0]
@@ -51,17 +61,20 @@ class Dynamics:
         
         d_attitude = .5 * np.einsum('nij,nj->ni', Omega, attitude)
         
-        # Compute d_angular_velocity
+        d_state[state_indices["ATTITUDE"]] = d_attitude.flatten()
         
-        I = props['INERTIA']
-        I_inv = props['INERTIA_INV']
+        # Handle ANGULAR_VELOCITY
+        
+        I = state_props["INERTIA_MATRIX"]
+        I_inv = state_props["INERTIA_MATRIX_INV"]
         
         Iw = np.einsum('nij,nj->ni', I, angular_velocity)
-        cross = np.cross(angular_velocity, Iw, axis=-1)
-        
+        cross = np.cross(angular_velocity, Iw, axis=-1)   
         torque = sum([screw[1] for screw in screws])
         
         d_angular_velocity = np.einsum('nij,nj->ni', I_inv, torque - cross)
         
-        return (velocities, accelerations, d_attitude, d_angular_velocity)
+        d_state[state_indices["ANGULAR_VELOCITY"]] = d_angular_velocity.flatten()
+
+        return d_state
         

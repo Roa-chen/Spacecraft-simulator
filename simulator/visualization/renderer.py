@@ -26,6 +26,7 @@ from panda3d.core import Vec4
 from panda3d.core import WindowProperties
 
 from simulator.utils.constants import SCALE
+from simulator.environment.environment import Environment
 from simulator.environment.spacecraft import Spacecraft
 from simulator.visualization.camera import Camera
 
@@ -35,7 +36,7 @@ class Renderer(ShowBase):
     def __init__(self, environment, simulation=None):
         super().__init__()
 
-        self.env = environment
+        self.env: Environment = environment
         self.simulation = simulation
         self.camera_controller = Camera()
         self._mouse_center = None

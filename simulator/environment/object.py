@@ -19,13 +19,17 @@ class Object:
         self.index: int = None
         
     def get_position(self) -> np.ndarray:
-        return self.environment.positions[self.index]
+        position = self.environment.state[self.environment.state_indices["POSITION"]].reshape(-1, 3)
+        return position[self.index]
     
     def get_velocity(self) -> np.ndarray:
-        return self.environment.velocities[self.index]
-    
+        velocity = self.environment.state[self.environment.state_indices["VELOCITY"]].reshape(-1, 3)
+        return velocity[self.index]
+
     def get_attitude(self) -> np.ndarray:
-        return self.environment.attitudes[self.index]
-    
+        attitude = self.environment.state[self.environment.state_indices["ATTITUDE"]].reshape(-1, 4)
+        return attitude[self.index]
+
     def get_angular_velocity(self) -> np.ndarray:
-        return self.environment.angular_velocities[self.index]
+        angular_velocity = self.environment.state[self.environment.state_indices["ANGULAR_VELOCITY"]].reshape(-1, 3)
+        return angular_velocity[self.index]

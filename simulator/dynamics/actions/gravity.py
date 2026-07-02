@@ -12,36 +12,29 @@ class Gravity(ActionModel):
         super().__init__()
         self.gravitational_constant = G
 
-    def compute_action(self, t: float, positions: np.ndarray, velocities: np.ndarray, attitude: np.ndarray, angular_velocity: np.ndarray, props: dict[str, np.ndarray]) -> tuple[np.ndarray, np.ndarray]:
+    def compute_action(self, t: float, state: np.ndarray, state_indices: dict[str, tuple[int, int]], state_props: dict[str, np.ndarray]) -> tuple[np.ndarray, np.ndarray]:
 
-        N = positions.shape[0]
+        N = state_props["MASS"].shape[0]
         
         # Calculate distances 
-        pos1 = positions.reshape(N, 1, 3)
-        pos2 = positions.reshape(1, N, 3)
+        pos1 = state[state_indices["POSITION"]].reshape(N, 1, 3)
+        pos2 = state[state_indices["POSITION"]].reshape(1, N, 3)
         dist = pos2 - pos1
         
-        # Handle division by 0
-        I = np.eye(N, dtype=float)
-        I3 = np.repeat(I[:, :, np.newaxis], 3, axis=2)
+        # Calculate 1/d^3
         
-        dist += I3
+        denominator = np.linalg.norm(dist, axis=2)**3
+        denominator += np.diag(np.inf*np.ones(N))
         
-        # Calculate G*m_i*m_j
+        # Calculate G*m_i*m_j / d^3
         
-        masses = props["MASS"].reshape(-1, 1)
-        masses_t = np.transpose(masses)
-        coefficients = G * masses * masses_t
-        
-        coefficients3 = np.repeat(coefficients[:, :, np.newaxis], 3, axis=2)
+        mass = state_props["MASS"].reshape(-1, 1)
+        mass_t = np.transpose(mass)
+        coefficient = G * (mass * mass_t) * (1/denominator)
         
         # Unify
         
-        D = np.repeat((np.linalg.norm(dist, axis=2)**3)[:, :, np.newaxis], 3, axis=2)
+        force3 = np.einsum('ijk,ij->ijk', dist, coefficient)
+        force = np.sum(force3, axis=1)
         
-        forces3 = coefficients3*dist / D
-        mask = np.ones((N, N)) - I
-        forces3 *= (np.repeat(mask[:, :, np.newaxis], 3, axis=2))
-        forces = np.sum(forces3, axis=1)
-        
-        return (forces, np.zeros((N, 3)))
+        return (force, np.zeros((N, 3)))
