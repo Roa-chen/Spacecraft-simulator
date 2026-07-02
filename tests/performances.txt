@@ -1,0 +1,25 @@
+
+
+100_000 sec en 27.6 sec avec dt = 60 => 3740 sim_sec / sec
+10_000 sec en 27.6 sec avec dt = 6 => 374 sim_sec / sec
+62.4 step/sec
+
+With a vector state per type (POSITION, VELOCITY,...)
+
+dt = 1, time taken for 100 steps: 0.0291 seconds, time per step: 0.000291 seconds
+dt = 10, time taken for 100 steps: 0.0231 seconds, timeper step: 0.000231 seconds
+dt = 100, time taken for 100 steps: 0.0274 seconds, time per step: 0.000274 seconds
+
+dt = 1, time taken for 10000 steps: 2.6210 seconds, time per step: 0.000262 seconds
+dt = 10, time taken for 10000 steps: 2.5598 seconds, time per step: 0.000256 seconds
+dt = 100, time taken for 10000 steps: 2.5527 seconds, time per step: 0.000255 seconds
+
+With a global vector state
+
+dt = 1, time taken for 100 steps: 0.0360 seconds, time per step: 0.000360 seconds
+dt = 10, time taken for 100 steps: 0.0165 seconds, timeper step: 0.000165 seconds
+dt = 100, time taken for 100 steps: 0.0302 seconds, time per step: 0.000302 seconds
+
+dt = 1, time taken for 10000 steps: 2.3703 seconds, time per step: 0.000237 seconds
+dt = 10, time taken for 10000 steps: 2.2511 seconds, time per step: 0.000225 seconds
+dt = 100, time taken for 10000 steps: 2.2947 seconds, time per step: 0.000229 seconds

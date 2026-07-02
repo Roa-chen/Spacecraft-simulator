@@ -12,7 +12,7 @@ from simulator.visualization.renderer import Renderer
 
 if __name__ == "__main__":
     
-    N = 100
+    N = 10000
     
     for dt in [1, 10, 100]:
     
