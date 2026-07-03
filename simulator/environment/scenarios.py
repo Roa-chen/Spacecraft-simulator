@@ -1,5 +1,6 @@
 import numpy as np
 
+from simulator.actuators.reactionWheel import ReactionWheel
 from simulator.utils.constants import *
 from simulator.environment.environment import Environment
 from simulator.environment.celestialObject import CelestialObject
@@ -136,5 +137,39 @@ def Earth_Two_Spacecrafts_circular(orbital_altitude: float = 400_000.0):
     env.add_objects([earth, satellite_1, satellite_2])
 
     env.initialize_state()
+
+    return env
+
+def Spacecraft_Only():
+    env = Environment()
+    
+    reaction_wheel = ReactionWheel(
+        orientation=np.array([0.0, 1.0, 0.0], dtype=float),
+        intertia=10.0,
+        max_torque=10000.0,
+        max_velocity=10000.0,
+        static_friction_coefficient=0.0,
+        dynamic_friction_coefficient=0.0,
+        initial_anglular_velocity=0.0,
+        initial_torque_cmd=1.0
+    )
+
+    satellite = Spacecraft(
+        name="Satellite",
+        mass=1_000.0,
+        initial_state=State(
+            position=np.array([0.0, 0.0, 0.0], dtype=float),
+            velocity=np.array([0.0, 0.0, 0.0], dtype=float),
+            attitude=np.array([1.0, 0.0, 0.0, 0.0], dtype=float),
+            angular_velocity=np.array([0.0, 0.0, 0.0], dtype=float),
+        ),
+        actuators=[reaction_wheel],
+    )
+
+    env.add_objects([satellite])
+
+    env.initialize_state()
+    
+    print("Initial command:", env.state_props["REACTION_WHEEL_TORQUE_CMD"][reaction_wheel.index])
 
     return env

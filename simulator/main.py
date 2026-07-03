@@ -15,9 +15,9 @@ if __name__ == "__main__":
     # env = Earth_Spacecraft_circular()
     # env = Earth_Spacecraft_elliptical()
     env = Earth_Two_Spacecrafts_circular()
+    # env = Spacecraft_Only()
     
-    dynamics = Dynamics()
-    integrator = RK4(dynamics)
+    integrator = RK4
     simulation = Simulation(env, integrator, 6.0)
 
 

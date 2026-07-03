@@ -1,42 +1,47 @@
 
 import numpy as np
 
+from simulator.utils.quaternion import body_to_inertial
 from simulator.dynamics.actions.actionModel import ActionModel
 from simulator.dynamics.actions.gravity import Gravity
-from simulator.actuators.actuatorModel import ActuatorModel
+from simulator.actuators.actuatorModel import ActuatorModelManager
+from simulator.actuators.reactionWheel import ReactionWheelManager
 
 class Dynamics:
-    def __init__(self):
-        self.forces: list[ActionModel] = [
-            Gravity(),
-        ]
+    considered_actions: list[ActionModel] = [
+        Gravity,
+    ]
         
-        self.actuators: list[ActuatorModel] = [
-            
-        ]
-        
-    """
-    props are:
-    MASS -> mass
-    INERTIA ->
-    INERTIA_INV -> 
-    """    
-
-    def differentiate(self, t: float, state: np.ndarray, state_indices: dict[str, tuple[int, int]], state_props: dict[str, np.ndarray]) -> np.ndarray:
+    actuators: list[ActuatorModelManager] = [
+        ReactionWheelManager,
+    ]
+    
+    @staticmethod
+    def differentiate(t: float, state: np.ndarray, state_indices: dict[str, tuple[int, int]], state_props: dict[str, np.ndarray]) -> np.ndarray:
 
         N = state_props["MASS"].shape[0]
         Y = state.shape[0]
         
         d_state = np.zeros(Y)
         
-        screws_ext = [model.compute_action(t, state, state_indices, state_props) for model in self.forces]
+        #Compute external actions
+        
+        screws_ext = [action.compute_action(t, state, state_indices, state_props) for action in Dynamics.considered_actions]
         resultant_ext = sum([screw[0] for screw in screws_ext])
         torque_ext = sum([screw[1] for screw in screws_ext])
         
-        screws_int_body_frame = [actuator.get_action_in_body_frame(t, state, state_indices, state_props) for actuator in self.actuators]
-        resultant_int_body_frame = sum([screw[0] for screw in screws_int_body_frame]) if self.actuators else np.zeros((N, 3))
-        resultant_int = resultant_int_body_frame #FIXME: convert to inertial frame 
-        torque_int = sum([screw[1] for screw in screws_int_body_frame]) if self.actuators else np.zeros((N, 3))
+        # Compute internal actions
+        
+        active_actuators = [actuator for actuator in Dynamics.actuators if actuator.is_in_state_vector(state_indices, state_props)]
+
+        screws_int_body_frame = [actuator.get_action_in_body_frame(t, state, state_indices, state_props) for actuator in active_actuators]
+        
+        resultant_int_body_frame = sum([screw[0] for screw in screws_int_body_frame]) if active_actuators else np.zeros((N, 3))
+        resultant_int = body_to_inertial(resultant_int_body_frame, state[state_indices["ATTITUDE"]].reshape(-1, 4)) #TODO: verify that this is correct
+        
+        torque_int = sum([screw[1] for screw in screws_int_body_frame]) if active_actuators else np.zeros((N, 3))
+        
+        # Combine external and internal actions
         
         resultant = resultant_ext + resultant_int
         torque = torque_ext + torque_int
@@ -55,7 +60,7 @@ class Dynamics:
         
         # Handle actuators
         
-        for actuator in self.actuators:
+        for actuator in active_actuators:
             d_state += actuator.differentiate(t, state, state_indices, state_props)
         
         # Handle ATTITUDE

@@ -7,8 +7,6 @@ TODO: Angular momentum is not perfectly conserved. Thus it may be useful to inte
 """
 
 class Integrator():
-    def __init__(self, dynamics: Dynamics):
-        self.dynamics = dynamics
-
-    def step(self, env: Environment, dt: float):
+    @staticmethod
+    def step(env: Environment, dt: float):
         raise NotImplementedError("Integrator step method must be implemented in subclasses.")

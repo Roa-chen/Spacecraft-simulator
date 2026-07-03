@@ -2,22 +2,14 @@
 import numpy as np
 from collections import defaultdict 
 
-from  simulator.core.clock import Clock
-from  simulator.core.manager import Manager
-from  simulator.utils.constants import G
-from  simulator.environment.celestialObject import CelestialObject
-from  simulator.environment.spacecraft import Spacecraft
+from simulator.utils.constants import G
+from simulator.core.clock import Clock
+from simulator.core.manager import Manager
+from simulator.dynamics.actions.actionModel import ActionModel
+from simulator.actuators.actuatorModel import ActuatorModelManager
+from simulator.environment.celestialObject import CelestialObject
+from simulator.environment.spacecraft import Spacecraft
 
-state_types = [
-    "POSITION",
-    "VELOCITY",
-    "ATTITUDE",
-    "ANGULAR_VELOCITY",
-]
-
-"""
-TODO: improve data structure by placing spacecrafts contiguously in the state vector
-"""
 
 class Environment:
     def __init__(self):
@@ -32,7 +24,7 @@ class Environment:
         self.state: np.ndarray = None
         self.state_indices: dict[str, slice] = {}
         self.state_props: dict[str, np.ndarray] = {}
-
+        
     def add_object(self, obj: CelestialObject):
         self.objects.append(obj)
         obj.environment = self

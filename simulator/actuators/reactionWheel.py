@@ -1,14 +1,10 @@
-from typing import TYPE_CHECKING
 
 import numpy as np
 
-if TYPE_CHECKING:
-    from simulator.environment.spacecraft import Spacecraft
-
 from simulator.core.manager import Manager
-from simulator.actuators.actuatorModel import ActuatorModel
+from simulator.actuators.actuatorModel import ActuatorModel, ActuatorModelManager
 
-class reactionWheelManager(Manager):
+class ReactionWheelManager(ActuatorModelManager):
     """
     KEY -> REACTION_WHEEL
     """
@@ -18,9 +14,9 @@ class reactionWheelManager(Manager):
         M = count.get("REACTION_WHEEL", 0)
         required_state = {
             "REACTION_WHEEL_ANGULAR_VELOCITY": M,
-            "REACTION_WHEEL_TORQUE_CMD": M,
         }
         required_state_props = {
+            "REACTION_WHEEL_TORQUE_CMD": M,
             "REACTION_WHEEL_ORIENTATION": (M, 3),
             "REACTION_WHEEL_INERTIA": M,
             "REACTION_WHEEL_MAX_TORQUE": M,
@@ -30,13 +26,18 @@ class reactionWheelManager(Manager):
             "REACTION_WHEEL_SPACECRAFT_MATRIX": (count.get("SPACECRAFT", 0), M),
         }
         return required_state, required_state_props
+
+    @staticmethod
+    def is_in_state_vector(state_indices: dict[str, tuple[int, int]], state_props: dict[str, np.ndarray]) -> bool:
+        return state_indices.get("REACTION_WHEEL_ANGULAR_VELOCITY") is not None
     
     @staticmethod
     def get_action_in_body_frame(t: float, state: np.ndarray, state_indices: dict[str, tuple[int, int]], state_props: dict[str, np.ndarray]) -> np.ndarray:
         
         N = state_props["MASS"].shape[0]
         
-        reaction_wheel_torque_cmd = np.clip(state[state_indices["REACTION_WHEEL_TORQUE_CMD"]], -state_props["REACTION_WHEEL_MAX_TORQUE"], state_props["REACTION_WHEEL_MAX_TORQUE"])
+        # reaction_wheel_torque_cmd = state_props["REACTION_WHEEL_TORQUE_CMD"]
+        reaction_wheel_torque_cmd = np.clip(state_props["REACTION_WHEEL_TORQUE_CMD"], -state_props["REACTION_WHEEL_MAX_TORQUE"], state_props["REACTION_WHEEL_MAX_TORQUE"])
         reaction_wheel_dynamic_friction_coefficient = state_props["REACTION_WHEEL_DYNAMIC_FRICTION_COEFFICIENT"]
         reaction_wheel_angular_velocity = state[state_indices["REACTION_WHEEL_ANGULAR_VELOCITY"]]
         
@@ -52,7 +53,7 @@ class reactionWheelManager(Manager):
     @staticmethod
     def differentiate(t: float, state: np.ndarray, state_indices: dict[str, tuple[int, int]], state_props: dict[str, np.ndarray]) -> np.ndarray:
         
-        reaction_wheel_torque_cmd = np.clip(state[state_indices["REACTION_WHEEL_TORQUE_CMD"]], -state_props["REACTION_WHEEL_MAX_TORQUE"], state_props["REACTION_WHEEL_MAX_TORQUE"])
+        reaction_wheel_torque_cmd = np.clip(state_props["REACTION_WHEEL_TORQUE_CMD"], -state_props["REACTION_WHEEL_MAX_TORQUE"], state_props["REACTION_WHEEL_MAX_TORQUE"])
         reaction_wheel_dynamic_friction_coefficient = state_props["REACTION_WHEEL_DYNAMIC_FRICTION_COEFFICIENT"]
         reaction_wheel_angular_velocity = state[state_indices["REACTION_WHEEL_ANGULAR_VELOCITY"]]
         
@@ -68,7 +69,7 @@ class reactionWheelManager(Manager):
         
         return d_state
 
-class reactionWheel(ActuatorModel):
+class ReactionWheel(ActuatorModel):
     """
     Reaction wheel actuator model.
     
@@ -88,7 +89,7 @@ class reactionWheel(ActuatorModel):
     - REACTION_WHEEL_SPACECRAFT_MATRIX -> matrix of (0 | 1) that maps the reaction wheel to the corresponding spacecraft 
     """    
     
-    def __init__(self, orientation: np.ndarray, intertia: float, max_torque: float, max_velocity: float, static_friction_coefficient: float, dynamic_friction_coefficient: float, initial_anglular_velocity: float = 0.0):
+    def __init__(self, orientation: np.ndarray, intertia: float, max_torque: float, max_velocity: float, static_friction_coefficient: float, dynamic_friction_coefficient: float, initial_anglular_velocity: float = 0.0, initial_torque_cmd: float = 0.0):
         super().__init__()
         
         self.orientation = orientation
@@ -99,19 +100,19 @@ class reactionWheel(ActuatorModel):
         self.dynamic_friction_coefficient = dynamic_friction_coefficient
         
         self.initial_anglular_velocity = initial_anglular_velocity
-        self.initial_torque_cmd = 0.0
+        self.initial_torque_cmd = initial_torque_cmd
         
         self.index: int = None # index of the reaction wheel in the global reaction wheels list (state vector)
         
     def initialize_count_manager(self, count: dict[str, int], manager: dict[str, Manager]):
         count["REACTION_WHEEL"] += 1
-        manager["REACTION_WHEEL"] = reactionWheelManager  
+        manager["REACTION_WHEEL"] = ReactionWheelManager  
         
     def initialize_state(self, state: np.ndarray, state_indices: dict[str, slice], state_props: dict[str, np.ndarray], indices: dict[str, int]):
         self.index = indices["REACTION_WHEEL"]
         indices["REACTION_WHEEL"] += 1
         
-        reaction_wheel_angular_velocity = state[state_indices["REACTION_WHEEL_ANGULAR_VELOCITY"]].reshape(-1, 3)
+        reaction_wheel_angular_velocity = state[state_indices["REACTION_WHEEL_ANGULAR_VELOCITY"]].reshape(-1, 1)
         reaction_wheel_angular_velocity[self.index] = self.initial_anglular_velocity
         
         state_props["REACTION_WHEEL_TORQUE_CMD"][self.index] = self.initial_torque_cmd

@@ -6,11 +6,9 @@ from simulator.utils.constants import G
 
 
 class Gravity(ActionModel):
-    def __init__(self):
-        super().__init__()
-        self.gravitational_constant = G
-
-    def compute_action(self, t: float, state: np.ndarray, state_indices: dict[str, tuple[int, int]], state_props: dict[str, np.ndarray]) -> tuple[np.ndarray, np.ndarray]:
+    
+    @staticmethod
+    def compute_action(t: float, state: np.ndarray, state_indices: dict[str, tuple[int, int]], state_props: dict[str, np.ndarray]) -> tuple[np.ndarray, np.ndarray]:
 
         N = state_props["MASS"].shape[0]
         

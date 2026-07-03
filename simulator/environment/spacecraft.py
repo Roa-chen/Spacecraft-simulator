@@ -89,6 +89,7 @@ class Spacecraft(Object):
         state_props["INERTIA_MATRIX_INV"][self.index] = np.linalg.inv(self.inertia_matrix)
         
         for actuator in self.actuators:
+            actuator.spacecraft = self
             actuator.initialize_state(state, state_indices, state_props, indices)
     
     def get_position(self) -> np.ndarray:
