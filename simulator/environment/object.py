@@ -36,3 +36,5 @@ class Object:
     def initialize_count_manager(self, count: dict[str, int], manager: dict[str, Manager]):
         raise NotImplementedError("This method should be overridden by subclasses.")
         
+    def initialize_state(self, state: np.ndarray, state_indices: dict[str, slice], state_props: dict[str, np.ndarray], indices: dict[str, int]):
+        raise NotImplementedError("This method should be overridden by subclasses.")        
