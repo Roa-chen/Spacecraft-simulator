@@ -3,7 +3,9 @@ import numpy as np
 class ActuatorModel:
     def __init__(self):
         self.spacecraft = None
-        
+    
+    def initialize_count_manager(self, count: dict[str, int]):
+        raise NotImplementedError("This method should be overridden by subclasses.")
     
     def apply(self, input_signal):
         raise NotImplementedError("This method should be overridden by subclasses.")

@@ -25,7 +25,6 @@ class Dynamics:
     def differentiate(self, t: float, state: np.ndarray, state_indices: dict[str, tuple[int, int]], state_props: dict[str, np.ndarray]) -> np.ndarray:
 
         N = state_props["MASS"].shape[0]
-        K = state_props["SPACECRAFT_INDICES"].shape[0]
         Y = state.shape[0]
         
         d_state = np.zeros(Y)
@@ -61,8 +60,6 @@ class Dynamics:
         
         # Handle ATTITUDE
         
-        K = state_props["SPACECRAFT_INDICES"].shape[0]
-        
         attitude = (state[state_indices["ATTITUDE"]].reshape(N, 4))
         angular_velocity = (state[state_indices["ANGULAR_VELOCITY"]].reshape(N, 3))
         
@@ -88,21 +85,15 @@ class Dynamics:
         
         d_state[state_indices["ATTITUDE"]] = d_attitude.flatten()
         
-        # Handle ANGULAR_VELOCITY (only spacecrafts)
-        
-        angular_velocity_spacecraft = angular_velocity[state_props["SPACECRAFT_INDICES"]]
+        # Handle ANGULAR_VELOCITY
         
         I = state_props["INERTIA_MATRIX"]
         I_inv = state_props["INERTIA_MATRIX_INV"]
         
-        Iw = np.einsum('nij,nj->ni', I, angular_velocity_spacecraft)
-        cross = np.cross(angular_velocity_spacecraft, Iw, axis=-1)
+        Iw = np.einsum('nij,nj->ni', I, angular_velocity)
+        cross = np.cross(angular_velocity, Iw, axis=-1)
         
-        torque_int_spacecraft = torque_int[state_props["SPACECRAFT_INDICES"]]
-        
-        d_angular_velocity = np.zeros((N, 3))
-        d_angular_velocity_spacecraft = np.einsum('nij,nj->ni', I_inv, torque_int_spacecraft - cross)
-        d_angular_velocity[state_props["SPACECRAFT_INDICES"]] = d_angular_velocity_spacecraft
+        d_angular_velocity = np.einsum('nij,nj->ni', I_inv, torque - cross)
         
         d_state[state_indices["ANGULAR_VELOCITY"]] = d_angular_velocity.flatten()
 

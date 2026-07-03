@@ -12,7 +12,7 @@ import numpy as np
 
 if __name__ == "__main__":
 
-    env = Earth_Spacecraft_circular()
+    # env = Earth_Spacecraft_circular()
     # env = Earth_Spacecraft_elliptical()
     env = Earth_Two_Spacecrafts_circular()
     

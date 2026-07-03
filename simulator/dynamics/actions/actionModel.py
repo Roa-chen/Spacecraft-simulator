@@ -1,7 +1,7 @@
 
 import numpy as np
 from simulator.environment.environment import Environment
-from simulator.environment.object import Object
+from simulator.environment.celestialObject import CelestialObject
 
 class ActionModel:
 

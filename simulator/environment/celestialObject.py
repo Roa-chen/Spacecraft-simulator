@@ -5,9 +5,9 @@ from simulator.core.state import State
 from simulator.core.manager import Manager
 from simulator.environment.object import Object, ObjectManager
 
-class SpacecraftManager(Manager):
+class CelestialObjectManager(Manager):
     """
-    KEY -> SPACECRAFT
+    KEY -> CELESTIAL_OBJECT
     """
     
     @staticmethod
@@ -26,41 +26,32 @@ class SpacecraftManager(Manager):
         }
         return required_state, required_state_props
 
-class Spacecraft(Object):
+class CelestialObject(Object):
     """
-    Represent a spacecraft in the environment, it contains its own caracteristics such as mass, and actuators
+    Represent all kind of celestial objects in the environment, including planets, moons, asteroids, etc.
     
-    KEY -> SPACECRAFT
+    KEY -> CELESTIAL_OBJECT
     """
-    def __init__(self, name: str, mass: float, initial_state: State) -> None:
+    
+    def __init__(self, name: str, mass: float, radius: float, initial_state: State) -> None:
         super().__init__(name, mass, initial_state)
         
-        self.dimensions = np.array([10.0, 4.0, 3.0], dtype=float)
+        self.radius = radius
+        self.inertia_matrix = self.mass * self.radius**2 * np.eye(3) / 2
         
-        a, b, c = self.dimensions
-        self.inertia_matrix = self.mass * np.array([
-            [b**2 + c**2, 0, 0],
-            [0, c**2 + a**2, 0],
-            [0, 0, a**2 + b**2],
-        ]) / 12
-        self.inertia_matrix_inv = np.linalg.inv(self.inertia_matrix)
-        
-        self.spacecraft_index: int = None
+        self.celestial_object_index: int = None
         
     def initialize_count_manager(self, count: dict[str, int], manager: dict[str, Manager]):
-        count["SPACECRAFT"] += 1
-        manager["SPACECRAFT"] = SpacecraftManager
+        count["CELESTIAL_OBJECT"] += 1
+        manager["CELESTIAL_OBJECT"] = CelestialObjectManager
         count["OBJECT"] += 1
         manager["OBJECT"] = ObjectManager
-
-        # for actuator in self.actuators:
-        #     actuator.initialize_count_manager(count)   
         
     def initialize_state(self, state: np.ndarray, state_indices: dict[str, slice], state_props: dict[str, np.ndarray], indices: dict[str, int]):
         self.index = indices["OBJECT"]
         indices["OBJECT"] += 1
-        self.spacecraft_index = indices["SPACECRAFT"]
-        indices["SPACECRAFT"] += 1
+        self.celestial_object_index = indices["CELESTIAL_OBJECT"]
+        indices["CELESTIAL_OBJECT"] += 1
         
         position = state[state_indices["POSITION"]].reshape(-1, 3)
         velocity = state[state_indices["VELOCITY"]].reshape(-1, 3)
@@ -75,10 +66,7 @@ class Spacecraft(Object):
         state_props["MASS"][self.index] = self.mass
         state_props["INERTIA_MATRIX"][self.index] = self.inertia_matrix
         state_props["INERTIA_MATRIX_INV"][self.index] = np.linalg.inv(self.inertia_matrix)
-        
-        # for actuator in self.actuators:
-        #     actuator.initialize_state(state, state_indices, state_props, indices)
-    
+
     def get_position(self) -> np.ndarray:
         position = self.environment.state[self.environment.state_indices["POSITION"]].reshape(-1, 3)
         return position[self.index]

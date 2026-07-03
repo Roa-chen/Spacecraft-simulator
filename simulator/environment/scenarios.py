@@ -3,14 +3,14 @@ import numpy as np
 
 from simulator.utils.constants import *
 from simulator.environment.environment import Environment
-from simulator.environment.object import Object
+from simulator.environment.celestialObject import CelestialObject
 from simulator.environment.spacecraft import Spacecraft
 from simulator.core.state import State
 
 def Earth_Spacecraft_circular(orbital_altitude: float = 400_000.0):
     env = Environment()
 
-    earth = Object(
+    earth = CelestialObject(
         name="Earth",
         mass=EARTH_MASS,
         radius=EARTH_RADIUS,
@@ -37,12 +37,15 @@ def Earth_Spacecraft_circular(orbital_altitude: float = 400_000.0):
     )
 
     env.add_objects([earth, satellite])
+    
+    env.initialize_state()
+    
     return env
 
 def Earth_Spacecraft_elliptical(min_orbital_radius: float = 8e6, max_orbital_radius: float = 30e6):
     env = Environment()
 
-    earth = Object(
+    earth = CelestialObject(
         name="Earth",
         mass=EARTH_MASS,
         radius=EARTH_RADIUS,
@@ -69,12 +72,15 @@ def Earth_Spacecraft_elliptical(min_orbital_radius: float = 8e6, max_orbital_rad
     )
 
     env.add_objects([earth, satellite])
+    
+    env.initialize_state()
+    
     return env
 
 def Earth_Two_Spacecrafts_circular(orbital_altitude: float = 400_000.0):
     env = Environment()
 
-    earth = Object(
+    earth = CelestialObject(
         name="Earth",
         mass=EARTH_MASS,
         radius=EARTH_RADIUS,
@@ -112,4 +118,7 @@ def Earth_Two_Spacecrafts_circular(orbital_altitude: float = 400_000.0):
     )
 
     env.add_objects([earth, satellite_1, satellite_2])
+    
+    env.initialize_state()
+    
     return env

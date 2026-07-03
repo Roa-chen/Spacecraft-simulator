@@ -1,9 +1,11 @@
 
 import numpy as np
+from collections import defaultdict 
 
 from  simulator.core.clock import Clock
+from  simulator.core.manager import Manager
 from  simulator.utils.constants import G
-from  simulator.environment.object import Object
+from  simulator.environment.celestialObject import CelestialObject
 from  simulator.environment.spacecraft import Spacecraft
 
 state_types = [
@@ -21,65 +23,52 @@ class Environment:
     def __init__(self):
         
         self.clock = Clock()
-        self.objects: list[Object, Spacecraft] = []
-        self.spacecrafts: list[Spacecraft] = []
         
-        self.state_arrays = {
-            "POSITION": np.zeros((0, 3)),
-            "VELOCITY": np.zeros((0, 3)),
-            "ATTITUDE": np.zeros((0, 4)),
-            "ANGULAR_VELOCITY": np.zeros((0, 3))
-        }
+        self.count = defaultdict(int)
+        self.manager: dict[str, Manager] = dict()
         
-        self.state: np.ndarray = np.zeros(0)
+        self.objects: list[CelestialObject, Spacecraft] = []
+        
+        self.state: np.ndarray = None
         self.state_indices: dict[str, slice] = {}
-        self.state_props: dict[str, np.ndarray] = {
-            "MASS": np.zeros(0),
-            "INERTIA_MATRIX": np.zeros((0, 3, 3)),
-            "INERTIA_MATRIX_INV": np.zeros((0, 3, 3)),
-            "SPACECRAFT_INDICES": np.zeros(0, dtype=int),
-        }
+        self.state_props: dict[str, np.ndarray] = {}
 
-    def add_object(self, obj: Object):
+    def add_object(self, obj: CelestialObject):
         self.objects.append(obj)
         obj.environment = self
-        ind = len(self.objects) - 1
-        obj.index = ind
-        
-        if isinstance(obj, Spacecraft):
-            self.spacecrafts.append(obj)
-            self.state_props["SPACECRAFT_INDICES"] = np.append(self.state_props["SPACECRAFT_INDICES"], ind)
-            
-        new_state_value_count = 0
-            
-        self.state_arrays["POSITION"] = np.concatenate((self.state_arrays["POSITION"], obj.initial_state.position.reshape(1, 3)))
-        self.state_arrays["VELOCITY"] = np.concatenate((self.state_arrays["VELOCITY"], obj.initial_state.velocity.reshape(1, 3)))
-        self.state_arrays["ATTITUDE"] = np.concatenate((self.state_arrays["ATTITUDE"], obj.initial_state.attitude.reshape(1, 4)))
-        self.state_arrays["ANGULAR_VELOCITY"] = np.concatenate((self.state_arrays["ANGULAR_VELOCITY"], obj.initial_state.angular_velocity.reshape(1, 3)))
+        obj.initialize_count_manager(self.count, self.manager)
 
-        self.state_props["MASS"] = np.append(self.state_props["MASS"], obj.mass)
-
-        new_state_value_count += 3 + 3 + 4 + 3 + 1
-        
-        if isinstance(obj, Spacecraft):
-            self.state_props["INERTIA_MATRIX"] = np.concatenate((self.state_props["INERTIA_MATRIX"], obj.inertia_matrix.reshape(1, 3, 3)), axis=0)
-            self.state_props["INERTIA_MATRIX_INV"] = np.concatenate((self.state_props["INERTIA_MATRIX_INV"], np.linalg.inv(obj.inertia_matrix).reshape(1, 3, 3)), axis=0)
-
-        self.state = np.zeros(self.state.size + new_state_value_count)
-        
-        i = 0
-        for state_type in state_types:
-            arr: np.ndarray = self.state_arrays[state_type]
-            size = arr.size
-            self.state[i: i + size] = arr.ravel()
-            self.state_indices[state_type] = slice(i, i + size)
-            i += size
-        
-
-    def add_objects(self, new_objects: list[object]):
+    def add_objects(self, new_objects: list[CelestialObject]):
         for obj in new_objects:
             self.add_object(obj)
+
+    def initialize_state(self):
         
+        required_state = {}
+        required_state_props = {}
+        
+        for manager in self.manager.values():
+            required = manager.get_state_required_properties(self.count)
+            required_state.update(required[0])
+            required_state_props.update(required[1])
+            
+        Y = 0
+        for name, size in required_state.items():
+            self.state_indices[name] = slice(Y, Y + size)
+            Y += size
+        self.state = np.zeros(Y)
+            
+        for name, shape in required_state_props.items():
+            self.state_props[name] = np.zeros(shape)
+            
+        self.objects.sort(key=lambda obj: isinstance(obj, Spacecraft), reverse=True)
+        
+        indices = defaultdict(int)
+        
+        for obj in self.objects:
+            obj.initialize_state(self.state, self.state_indices, self.state_props, indices)
+        
+
     def get_time(self):
         return self.clock.get_time()
     
