@@ -3,8 +3,6 @@ import numpy as np
 
 from simulator.dynamics.actions.actionModel import ActionModel
 from simulator.utils.constants import G
-from simulator.environment.environment import Environment
-from simulator.environment.object import Object
 
 
 class Gravity(ActionModel):

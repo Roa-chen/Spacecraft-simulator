@@ -13,6 +13,10 @@ state_types = [
     "ANGULAR_VELOCITY",
 ]
 
+"""
+TODO: improve data structure by placing spacecrafts contiguously in the state vector
+"""
+
 class Environment:
     def __init__(self):
         
