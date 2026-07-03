@@ -32,13 +32,19 @@ class Environment:
         self.state_props: dict[str, np.ndarray] = {
             "MASS": np.zeros(0),
             "INERTIA_MATRIX": np.zeros((0, 3, 3)),
-            "INERTIA_MATRIX_INV": np.zeros((0, 3, 3))
+            "INERTIA_MATRIX_INV": np.zeros((0, 3, 3)),
+            "SPACECRAFT_INDICES": np.zeros(0, dtype=int),
         }
 
     def add_object(self, obj: Object):
         self.objects.append(obj)
+        obj.environment = self
+        ind = len(self.objects) - 1
+        obj.index = ind
+        
         if isinstance(obj, Spacecraft):
             self.spacecrafts.append(obj)
+            self.state_props["SPACECRAFT_INDICES"] = np.append(self.state_props["SPACECRAFT_INDICES"], ind)
             
         new_state_value_count = 0
             
@@ -55,9 +61,6 @@ class Environment:
             self.state_props["INERTIA_MATRIX"] = np.concatenate((self.state_props["INERTIA_MATRIX"], obj.inertia_matrix.reshape(1, 3, 3)), axis=0)
             self.state_props["INERTIA_MATRIX_INV"] = np.concatenate((self.state_props["INERTIA_MATRIX_INV"], np.linalg.inv(obj.inertia_matrix).reshape(1, 3, 3)), axis=0)
 
-        obj.environment = self
-        obj.index = len(self.objects) - 1
-        
         self.state = np.zeros(self.state.size + new_state_value_count)
         
         i = 0

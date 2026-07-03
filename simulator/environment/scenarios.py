@@ -70,3 +70,46 @@ def Earth_Spacecraft_elliptical(min_orbital_radius: float = 8e6, max_orbital_rad
 
     env.add_objects([earth, satellite])
     return env
+
+def Earth_Two_Spacecrafts_circular(orbital_altitude: float = 400_000.0):
+    env = Environment()
+
+    earth = Object(
+        name="Earth",
+        mass=EARTH_MASS,
+        radius=EARTH_RADIUS,
+        initial_state=State(
+            position=np.array([0.0, 0.0, 0.0], dtype=float),
+            velocity=np.array([0.0, 0.0, 0.0], dtype=float),
+            attitude=np.array([1.0, 0.0, 0.0, 0.0], dtype=float),
+            angular_velocity=np.array([0.0, 0.0, 0.0], dtype=float),
+        ),
+    )
+
+    satellite_position = EARTH_RADIUS + orbital_altitude
+    orbital_speed = np.sqrt(G * EARTH_MASS / np.linalg.norm(satellite_position))
+
+    satellite_1 = Spacecraft(
+        name="Satellite 1",
+        mass=1_000.0,
+        initial_state=State(
+            position=np.array([satellite_position, 0.0, 0.0], dtype=float),
+            velocity=np.array([0.0, orbital_speed, 0.0], dtype=float),
+            attitude=np.array([1.0, 0.0, 0.0, 0.0], dtype=float),
+            angular_velocity=np.array([5e-3, 0.0, 0.0], dtype=float),
+        ),
+    )
+    
+    satellite_2 = Spacecraft(
+        name="Satellite 2",
+        mass=1_000.0,
+        initial_state=State(
+            position=np.array([0.0, -satellite_position, 0.0], dtype=float),
+            velocity=np.array([orbital_speed, 0.0, 0.0], dtype=float),
+            attitude=np.array([1.0, 0.0, 0.0, 0.0], dtype=float),
+            angular_velocity=np.array([0.0, 0.0, 5e-3], dtype=float),
+        ),
+    )
+
+    env.add_objects([earth, satellite_1, satellite_2])
+    return env
