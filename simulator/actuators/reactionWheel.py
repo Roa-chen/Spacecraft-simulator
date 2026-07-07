@@ -36,7 +36,6 @@ class ReactionWheelManager(ActuatorModelManager):
         
         N = state_props["MASS"].shape[0]
         
-        # reaction_wheel_torque_cmd = state_props["REACTION_WHEEL_TORQUE_CMD"]
         reaction_wheel_torque_cmd = np.clip(state_props["REACTION_WHEEL_TORQUE_CMD"], -state_props["REACTION_WHEEL_MAX_TORQUE"], state_props["REACTION_WHEEL_MAX_TORQUE"])
         reaction_wheel_dynamic_friction_coefficient = state_props["REACTION_WHEEL_DYNAMIC_FRICTION_COEFFICIENT"]
         reaction_wheel_angular_velocity = state[state_indices["REACTION_WHEEL_ANGULAR_VELOCITY"]]
@@ -46,7 +45,7 @@ class ReactionWheelManager(ActuatorModelManager):
         
         reaction_wheel_torque_1D = np.matmul(reaction_wheel_spacecraft_matrix, reaction_wheel_torque) 
         
-        spacecraft_torque = - np.einsum('mi,m->mi', state_props["REACTION_WHEEL_ORIENTATION"], reaction_wheel_torque_1D) # '-' signe because it is the action of the reaction wheel on the spacecraft
+        spacecraft_torque = - np.einsum('mi,m->mi', state_props["REACTION_WHEEL_ORIENTATION"], reaction_wheel_torque_1D / np.linalg.norm(state_props["REACTION_WHEEL_ORIENTATION"])) # '-' signe because it is the action of the reaction wheel on the spacecraft
         
         return (np.zeros((N, 3)), spacecraft_torque)
 
@@ -130,7 +129,15 @@ class ReactionWheel(ActuatorModel):
             raise ValueError("Spacecraft is not set for the reaction wheel.")
         
         env = self.spacecraft.environment
-        reaction_wheel_torque_cmd = env.state[env.state_indices["REACTION_WHEEL_TORQUE_CMD"]]
+        reaction_wheel_torque_cmd = env.state_props["REACTION_WHEEL_TORQUE_CMD"]
         reaction_wheel_torque_cmd[self.index] = command["REACTION_WHEEL_TORQUE_CMD"]
 
+    def get_angular_velocity(self):
+        if self.spacecraft is None:
+            raise ValueError("Spacecraft is not set for the reaction wheel.")
+        
+        env = self.spacecraft.environment
+        reaction_wheel_angular_velocity = env.state[env.state_indices["REACTION_WHEEL_ANGULAR_VELOCITY"]]
+        return reaction_wheel_angular_velocity[self.index]
+        
     

@@ -19,7 +19,7 @@ class Environment:
         self.count = defaultdict(int)
         self.manager: dict[str, Manager] = dict()
         
-        self.objects: list[CelestialObject, Spacecraft] = []
+        self.objects: list[CelestialObject | Spacecraft] = []
         
         self.state: np.ndarray = None
         self.state_indices: dict[str, slice] = {}

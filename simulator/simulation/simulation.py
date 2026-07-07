@@ -14,5 +14,7 @@ class Simulation:
 
     def step(self):
 
+        # Need to acquire the command data from an external source
+        
         self.integrator.step(self.env, self.dt)
         self.env.step_time(self.dt)

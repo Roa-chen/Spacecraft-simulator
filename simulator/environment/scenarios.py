@@ -144,14 +144,14 @@ def Spacecraft_Only():
     env = Environment()
     
     reaction_wheel = ReactionWheel(
-        orientation=np.array([0.0, 1.0, 0.0], dtype=float),
-        intertia=10.0,
+        orientation=np.array([0.0, 0.0, 10.0], dtype=float),
+        intertia=1.0,
         max_torque=10000.0,
         max_velocity=10000.0,
         static_friction_coefficient=0.0,
         dynamic_friction_coefficient=0.0,
         initial_anglular_velocity=0.0,
-        initial_torque_cmd=1.0
+        initial_torque_cmd=-0.00
     )
 
     satellite = Spacecraft(
